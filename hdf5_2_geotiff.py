@@ -47,7 +47,7 @@ for i in fNames:
         
         # set up geotransform
         num_cols = data.shape[1]
-        num_rows = data.shape[0]        
+        num_rows = data.shape[0]
         
         xmin = longitude[longitude!=-9999].min()
         xmax = longitude[longitude!=-9999].max()
@@ -60,23 +60,20 @@ for i in fNames:
         geotransform = (xmin, xres, 0, ymax, 0, -yres)
         
         # create geotiff
-        directory, filename = os.path.split(i)
-        filename_ext = os.path.splitext(filename)[0]
         driver = gdal.GetDriverByName("Gtiff")
-       
         raster = driver.Create(os.path.splitext(i)[0] + ".tif",
                                int(num_cols), int(num_rows),
                                1, gdal.GDT_Float32)
-                
+
         # set geotransform and projection
         raster.SetGeoTransform(geotransform)
         srs = osr.SpatialReference()
         wkt_text = r'PROJCS["unnamed",GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9108"]],AUTHORITY["EPSG","4326"]],PROJECTION["Cylindrical_Equal_Area"],PARAMETER["standard_parallel_1",30],PARAMETER["central_meridian",0],PARAMETER["false_easting",0],PARAMETER["false_northing",0],UNIT["Meter",1],AUTHORITY["epsg","6933"]]'
         srs.ImportFromWkt(wkt_text)
         raster.SetProjection(srs.ExportToWkt())
-        
+
         # write data array to raster
         raster.GetRasterBand(1).WriteArray(data.data)
         raster.GetRasterBand(1).SetNoDataValue(-9999)
         raster.FlushCache()
-        raster = None        
+        raster = None
